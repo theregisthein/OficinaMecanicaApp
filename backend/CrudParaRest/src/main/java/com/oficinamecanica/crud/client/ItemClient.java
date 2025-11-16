@@ -39,28 +39,65 @@ public class ItemClient {
   }
 
   
-  public void inserir(Item it) {
+
+    public void inserir(Item it) {
     try {
-        URI uri = new URI("http://localhost:9090/item");
+        System.out.println("--- DEBUG CLIENT INSERT: Enviando POST para: " + uri);
         restTemplate.postForObject(uri, it, Item.class);
+        System.out.println("--- DEBUG CLIENT INSERT: Sucesso.");
+        
+    } catch (Exception e) {
+        System.out.println("--- ERRO NO CLIENT INSERT: " + e.getMessage());
+        e.printStackTrace();
+        // ISSO FAZ O ERRO APARECER NO LARAVEL
+        throw new RuntimeException("Erro ao INSERIR no client 9090: " + e.getMessage()); 
+    }
+}
+
+    public void atualizar(Long id, Item it) {
+        try {
+            String urlDestino = uri; 
+         
+            // força o ID dentro do objeto mais uma vez
+            it.setId(id); 
+
+            restTemplate.put(urlDestino, it);
+         
         } catch (Exception e) {
+            System.out.println("ERRO NO UPDATE: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void atualizar(Item it) {
-    try {
-        restTemplate.put(uri, it);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
+
+
 
     public void excluir(Long id) {
-    try {
-        restTemplate.delete(uri + "/" + id);
+        try {
+            String urlDestino = uri + "/" + id;
+            
+            restTemplate.delete(urlDestino);
+            
+            
         } catch (Exception e) {
             e.printStackTrace();
+            
+            // ISSO JOGA O ERRO DE VOLTA PARA O LARAVEL VER
+            throw new RuntimeException("Erro ao EXCLUIR no client 9090: " + e.getMessage()); 
+        }
+    }
+
+    public Item buscaPorId(Long id) {
+        try {
+            String urlDestino = uri + "/" + id; 
+            System.out.println("--- DEBUG CLIENT: Tentando buscar na API 9090: " + urlDestino);
+            
+            return restTemplate.getForObject(urlDestino, Item.class);
+        } catch (Exception e) {
+            System.out.println("--- DEBUG CLIENT: Erro ao conectar: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 

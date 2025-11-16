@@ -2,64 +2,92 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pessoa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class PessoaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private $apiBaseUrl = 'http://localhost:8080/pessoas-proxy';
+
     public function index()
     {
-        //
+        try {
+            $response = Http::get($this->apiBaseUrl);
+            $pessoas = $response->json(); 
+        } catch (\Exception $e) {
+            $pessoas = [];
+        }
+        
+        return view("pessoas.index", ['pessoas' => $pessoas]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $data = $request->only(['nome', 'telefone', 'endereco', 'cpfcnpj', 'tipo']);
+        $response = Http::post($this->apiBaseUrl, $data);
+
+        if ($response->failed()) {
+            return back()->with('error', 'Falha ao salvar a pessoa na API.');
+        }
+
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa criada com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Pessoa $pessoa)
+    public function show($id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Pessoa $pessoa)
+    public function edit($id)
     {
-        //
+        $response = Http::get("{$this->apiBaseUrl}/{$id}");
+
+        if ($response->failed()) {
+            return redirect()->route('pessoas.index')->with('error', 'Pessoa não encontrada na API.');
+        }
+
+        $pessoa = $response->json();
+
+        return view('pessoas.edit', ['pessoa' => $pessoa]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Pessoa $pessoa)
+    public function update(Request $request, $id)
     {
-        //
+        $data = $request->only(['nome', 'telefone', 'endereco', 'cpfcnpj', 'tipo']); 
+        $response = Http::put("{$this->apiBaseUrl}/{$id}", $data);
+
+        if ($response->failed()) {
+            return back()->with('error', 'Falha ao atualizar a pessoa na API.');
+        }
+
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa atualizada com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Pessoa $pessoa)
+    public function destroy($id)
     {
-        //
+        $response = Http::delete("{$this->apiBaseUrl}/{$id}");
+
+        if ($response->failed()) {
+            $errorMessage = $response->json()['message'] ?? 'Falha ao excluir a pessoa na API.';
+            return redirect()->back()->with('error', $errorMessage);
+        }
+
+        return redirect()->route('pessoas.index')->with('success', 'Pessoa excluída com sucesso!');
+    }
+
+    public function toggleStatus($id)
+    {
+        $response = Http::patch("{$this->apiBaseUrl}/{$id}/toggle-status");
+
+        if ($response->failed()) {
+            return redirect()->back()->with('error', 'Falha ao alterar o status.');
+        }
+
+        return redirect()->route('pessoas.index')->with('success', 'Status alterado!');
     }
 }

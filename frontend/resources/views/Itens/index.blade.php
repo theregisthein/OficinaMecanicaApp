@@ -11,7 +11,7 @@
 
             <form action="{{ route('itens.store') }}" method="POST">
                 
-                {{-- @csrf é para segurança em formulários Laravel --}}
+                {{-- @csrf é para segurança em formulários laravel --}}
                 @csrf 
 
                 <div class="row">
@@ -24,17 +24,15 @@
                         <label for="marca" class="form-label">Marca</label>
                         <input type="text" class="form-control" id="marca" name="marca">
                     </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="preco" class="form-label">Preço (R$)</label>
+                        <input type="number" class="form-control" id="preco" name="preco" step="0.01" min="0" required>
+                    </div>
+
                 </div>
 
-                <div class="mb-3">
-                    <label for="descricao" class="form-label">Descrição</label>
-                    <textarea class="form-control" id="descricao" name="descricao" rows="3"></textarea>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label for="valor" class="form-label">Valor (R$)</label>
-                    <input type="number" class="form-control" id="valor" name="valor" step="0.01" min="0" required>
-                </div>
+                
 
                 <hr>
                 <button type="submit" class="btn btn-primary">Salvar Item</button>
@@ -53,22 +51,22 @@
                         <th scope="col">ID</th>
                         <th scope="col">Nome</th>
                         <th scope="col">Marca</th>
-                        <th scope="col">Valor</th>
+                        <th scope="col">Preço</th>
                         <th scope="col" style="width: 150px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- O Controller PHP passou a variável $itens para cá --}}
+                    {{-- O Controller PHP passou a variável $itens pra ca --}}
                     @foreach ($itens as $item)
                         <tr>
                             {{-- IMPORTANTE: É Usado $item['id'] (array) 
                                 porque os dados vêm de um JSON da sua API Java,
-                                e não de um Objeto Eloquent. Pode acontecer erro --}}
+                                e não de um Objeto Eloquent. --}}
 
                             <td>{{ $item['id'] }}</td>
                             <td>{{ $item['nome'] }}</td>
                             <td>{{ $item['marca'] }}</td>
-                            <td>R$ {{ number_format($item['valor'], 2, ',', '.') }}</td>
+                            <td>R$ {{ number_format($item['preco'], 2, ',', '.') }}</td>
                             <td>
                                 <a href="{{ route('itens.edit', $item['id']) }}" class="btn btn-warning btn-sm">
                                     Editar

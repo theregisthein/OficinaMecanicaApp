@@ -5,7 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-@Entity
+@Entity //indica que esta classe e uma tabela do banco de dados
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

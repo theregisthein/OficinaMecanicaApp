@@ -1,7 +1,7 @@
 package com.oficinamecanica.crud.model;
 
 public class Item {
-    private Integer id;
+    private Long id;
     private String nome;
     private String marca;
     private String preco;
@@ -10,7 +10,7 @@ public class Item {
     public Item() {
     }
 
-    public Item(Integer id, String nome, String marca, String preco) {
+    public Item(Long id, String nome, String marca, String preco) {
         this.id = id;
         this.nome = nome;
         this.marca = marca;
@@ -18,11 +18,11 @@ public class Item {
     }
 
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -42,11 +42,11 @@ public class Item {
         this.marca = marca;
     }
 
-    public String getValor() {
+    public String getPreco() {
         return this.preco;
     }
 
-    public void setValor(String preco) {
+    public void setPreco(String preco) {
         this.preco = preco;
     }
     

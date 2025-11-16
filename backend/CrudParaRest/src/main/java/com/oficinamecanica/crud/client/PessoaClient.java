@@ -7,10 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.oficinamecanica.crud.model.Pessoa;
 
+@Component
 public class PessoaClient {
     
 
@@ -38,35 +40,47 @@ public class PessoaClient {
   }
 
   
-  public void inserir(Pessoa pe) {
-    try {
-        URI uri = new URI("http://localhost:9090/pessoa");
-        restTemplate.postForObject(uri, pe, Pessoa.class);
+  public void inserir(Pessoa pessoa) {
+        try {
+            restTemplate.postForObject(uri, pessoa, Pessoa.class);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Erro ao INSERIR Pessoa no client 9090: " + e.getMessage()); 
         }
     }
 
-    public void atualizar(Pessoa pe) {
-    try {
-        restTemplate.put(uri, pe);
+    public void atualizar(Long id, Pessoa pessoa) {
+        try {
+            String urlDestino = uri; 
+            pessoa.setId(id);
+            restTemplate.put(urlDestino, pessoa);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Erro ao ATUALIZAR Pessoa no client 9090: " + e.getMessage());
         }
     }
 
-    public void excluir(Integer id) {
-    try {
-        restTemplate.delete(uri + "/" + id);
+    public void excluir(Long id) {
+        try {
+            String urlDestino = uri + "/" + id;
+            restTemplate.delete(urlDestino);
+            
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Erro ao EXCLUIR no client 9090: " + e.getMessage()); 
         }
     }
 
-
-
-
-
+    public Pessoa buscaPorId(Long id) {
+        try {
+            String urlDestino = uri + "/" + id;
+            return restTemplate.getForObject(urlDestino, Pessoa.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
 
 
 

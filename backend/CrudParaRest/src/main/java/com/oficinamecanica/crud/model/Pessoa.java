@@ -1,7 +1,7 @@
 package com.oficinamecanica.crud.model;
 
 public class Pessoa {
-    private Integer id;
+    private Long id;
     private String nome;
     private String telefone;
     private String endereco;
@@ -12,7 +12,7 @@ public class Pessoa {
     public Pessoa() {
     }
 
-    public Pessoa(Integer id, String nome, String telefone, String endereco, String cpfcnpj, String tipo) {
+    public Pessoa(Long id, String nome, String telefone, String endereco, String cpfcnpj, String tipo) {
         this.id = id;
         this.nome = nome;
         this.telefone = telefone;
@@ -22,11 +22,11 @@ public class Pessoa {
     }
     
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

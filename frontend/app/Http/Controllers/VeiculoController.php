@@ -2,64 +2,87 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\veiculo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
 
 class VeiculoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+    private $apiBaseUrl = 'http://localhost:8080/veiculos-proxy';
+ 
     public function index()
     {
-        //
+        $response = Http::get($this->apiBaseUrl);
+        $veiculos = $response->json(); 
+        return view("veiculos.index", ['veiculos' => $veiculos]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+  
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+ 
+    
     public function store(Request $request)
     {
-        //
+        $data = $request->only(['marca', 'modelo', 'placa', 'ano', 'cor']);
+        $response = Http::post($this->apiBaseUrl, $data);
+
+        if ($response->failed()) {
+            return back()->with('error', 'Falha ao salvar o veiculo na API.');
+        }
+
+        return redirect()->route('veiculos.index')->with('success', 'Veiculo criado com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(veiculo $veiculo)
+
+    
+    public function show($id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(veiculo $veiculo)
+    
+    
+    public function edit($id)
     {
-        //
+        $response = Http::get("{$this->apiBaseUrl}/{$id}");
+
+        if ($response->failed()) {
+            return redirect()->route('veiculos.index')->with('error', 'Veiculo não encontrado na API.');
+        }
+
+        $veiculo = $response->json();
+
+        return view('veiculos.edit', ['veiculo' => $veiculo]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, veiculo $veiculo)
+
+    public function update(Request $request, $id)
     {
-        //
+        $data = $request->only(['marca', 'modelo', 'placa', 'ano', 'cor']); 
+        
+        $response = Http::put("{$this->apiBaseUrl}/{$id}", $data);
+
+        if ($response->failed()) {
+            return back()->with('error', 'Falha ao atualizar o veiculo na API.');
+        }
+
+        return redirect()->route('veiculos.index')->with('success', 'Veiculo atualizado com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(veiculo $veiculo)
+ 
+    public function destroy($id)
     {
-        //
+        $response = Http::delete("{$this->apiBaseUrl}/{$id}");
+
+        if ($response->failed()) {
+            return redirect()->back()->with('error', 'Falha ao excluir o veiculo na API.');
+        }
+
+        return redirect()->route('veiculos.index')->with('success', 'Veiculo excluído com sucesso!');
     }
 }

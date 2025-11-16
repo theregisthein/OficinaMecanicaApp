@@ -1,7 +1,7 @@
 package com.oficinamecanica.crud.model;
 
 public class Veiculo {
-    private Integer id;
+    private Long id;
     private String marca;
     private String modelo;
     private String placa;
@@ -12,7 +12,7 @@ public class Veiculo {
     public Veiculo() {
     }
 
-    public Veiculo(Integer id, String marca, String modelo, String placa, Integer ano, String cor) {
+    public Veiculo(Long id, String marca, String modelo, String placa, Integer ano, String cor) {
         this.id = id;
         this.marca = marca;
         this.modelo = modelo;
@@ -21,11 +21,11 @@ public class Veiculo {
         this.cor = cor;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

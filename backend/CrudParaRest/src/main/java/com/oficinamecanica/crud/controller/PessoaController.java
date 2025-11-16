@@ -1,5 +1,6 @@
 package com.oficinamecanica.crud.controller;
 
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,57 +15,57 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.oficinamecanica.crud.client.ItemClient;
-import com.oficinamecanica.crud.model.Item;
+import com.oficinamecanica.crud.client.PessoaClient;
+import com.oficinamecanica.crud.model.Pessoa;
 
 @RestController
-@RequestMapping("/items-proxy") // URL que JS vai chamar
-@CrossOrigin(origins = "*") //Permite que sites externos (como o JavaScript do navegador) acessem esta API > AINDA NAO UTILIZADO
-public class ItemController {
+@RequestMapping("/pessoas-proxy")
+@CrossOrigin(origins = "*")
+
+
+public class PessoaController {
 
     @Autowired
-    private ItemClient itemClient; 
+    private PessoaClient pessoaClient;
 
     @GetMapping
-    public List<Item> listarTodos() {
-        // controller recebe do JS
-        // controller chama o Client
-        return itemClient.listar(); 
+    public List<Pessoa> listarTodos() {
+        return pessoaClient.listar(); 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Item> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Pessoa> buscarPorId(@PathVariable Long id) {
 
-        Item item = itemClient.buscaPorId(id);
+        Pessoa pessoa = pessoaClient.buscaPorId(id);
         
-        if (item != null) {
-            return ResponseEntity.ok(item);
+        if (pessoa != null) {
+            return ResponseEntity.ok(pessoa);
         }
         
         return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public ResponseEntity<Void> inserir(@RequestBody Item item) {
-        itemClient.inserir(item);
-        
+    public ResponseEntity<Void> inserir(@RequestBody Pessoa pessoa) {
+
+        pessoaClient.inserir(pessoa);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}") 
-    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Item item) {
-        item.setId(id); 
-        itemClient.atualizar(id, item);
-        
+    public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Pessoa pessoa) {
+
+        pessoa.setId(id); 
+        pessoaClient.atualizar(id, pessoa);
         return ResponseEntity.ok().build();
     }
 
 
     @DeleteMapping("/{id}") 
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        itemClient.excluir(id); 
+        pessoaClient.excluir(id); 
         return ResponseEntity.ok().build();
     }
 
-
+    
 }

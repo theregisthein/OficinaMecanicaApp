@@ -9,8 +9,8 @@ class Item extends Model
     protected $fillable = [
         'id',
         'nome',
-        'descricao',
         'marca',
-        'valor'
+        'valor',
+        'ativo'
     ];
 }
