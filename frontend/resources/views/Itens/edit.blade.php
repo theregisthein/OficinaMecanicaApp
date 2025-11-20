@@ -11,7 +11,7 @@
             <form action="{{ route('itens.update', $item['id']) }}" method="POST">
                 
                 @csrf
-                @method('PUT') {{--  para o laravel entender que é edição --}}
+                @method('PUT') {{-- PUT para o laravel entender que é edição --}}
 
                 <div class="row">
                     <div class="col-md-6 mb-3">

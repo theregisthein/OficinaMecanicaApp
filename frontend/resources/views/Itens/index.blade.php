@@ -56,11 +56,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- O Controller PHP passou a variável $itens pra ca --}}
+                    {{-- Controller PHP passou a variável $itens pra ca --}}
                     @foreach ($itens as $item)
                         <tr>
                             {{-- IMPORTANTE: É Usado $item['id'] (array) 
-                                porque os dados vêm de um JSON da sua API Java,
+                                porque os dados vêm de um JSON da API Java,
                                 e não de um Objeto Eloquent. --}}
 
                             <td>{{ $item['id'] }}</td>

@@ -80,6 +80,20 @@ public class PessoaClient {
             return null;
         }
     }
+
+    public Pessoa login(String email, String senha) {
+        try {
+            Pessoa loginData = new Pessoa();
+            loginData.setEmail(email);
+            loginData.setSenha(senha);
+
+            // Chama a API 9090
+            return restTemplate.postForObject(uri + "/login", loginData, Pessoa.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     
 
 

@@ -65,7 +65,7 @@ class ItemController extends Controller
         // pega os dados do formulário de edição
         $data = $request->only(['nome', 'descricao', 'marca', 'preco']);
 
-        // envia os dados para o crud por metodo PUT se o crud tiver um PUT /items-proxy/{id})
+        // envia os dados para o crud por metodo PUT
         $response = Http::put("{$this->apiBaseUrl}/{$id}", $data);
 
         if ($response->failed()) {
@@ -78,7 +78,7 @@ class ItemController extends Controller
 
     public function destroy($id)
     {
-        // manda a requisição DELETE para o crud cxaso ele tenha um DELETE /items-proxy/{id})
+        // manda a requisição DELETE para o crud 
         $response = Http::delete("{$this->apiBaseUrl}/{$id}");
 
         if ($response->failed()) {

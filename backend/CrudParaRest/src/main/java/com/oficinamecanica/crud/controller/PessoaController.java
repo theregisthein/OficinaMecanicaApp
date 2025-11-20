@@ -52,6 +52,16 @@ public class PessoaController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Pessoa> login(@RequestBody Pessoa loginData) {
+        Pessoa pessoa = pessoaClient.login(loginData.getEmail(), loginData.getSenha());
+        
+        if (pessoa != null) {
+            return ResponseEntity.ok(pessoa);
+        }
+        return ResponseEntity.status(401).build();
+    }
+
     @PutMapping("/{id}") 
     public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody Pessoa pessoa) {
 

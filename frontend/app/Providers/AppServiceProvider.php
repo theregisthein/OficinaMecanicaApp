@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Router;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,8 +18,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(Router $router): void 
     {
-        //
+        // esta linha registra o alias de middleware no sistema de rotas
+        $router->aliasMiddleware('auth.custom', \App\Http\Middleware\EnsureUserIsLoggedIn::class);
     }
 }
