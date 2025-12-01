@@ -10,42 +10,44 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.oficinamecanica.apirest.entity.Item;
 import com.oficinamecanica.apirest.service.ItemService;
 
 @RestController
+@RequestMapping("/item")
 public class ItemController {
     
     @Autowired
     ItemService servItem;
 
-    @PostMapping("/item")
+    @PostMapping
     public Item save(@RequestBody Item ot) {
         servItem.save(ot);
         return ot;
     }
 
-    @GetMapping("/item")
+    @GetMapping
     public List<Item> list() {
         return servItem.findAll();
     }
 
-    @PutMapping("/item")
+    @PutMapping
     public Item update(@RequestBody Item it){
       servItem.save(it);
       return it;
     }
 
-    @DeleteMapping("/item/{id}")
+    @DeleteMapping("/{id}")
     public Optional<Item> delete(@PathVariable Long id){
       Optional<Item> i = servItem.findById(id);
       servItem.delete(i.get());
       return i;
     }
 
-    @GetMapping("/item/{numero}")
+    @GetMapping("/{numero}")
     public Optional<Item> read(@PathVariable Long numero){
       Optional<Item> i = servItem.findById(numero);
       return i;

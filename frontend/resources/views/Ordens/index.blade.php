@@ -3,6 +3,18 @@
 @section('content')
 <div class="container">
     
+    {{-- Exibição de Mensagens de Sucesso ou Erro --}}
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="card">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
@@ -17,25 +29,29 @@
                 <thead>
                     <tr>
                         <th scope="col">OS Nº</th>
-                        <th scope="col">Cliente ID</th>
-                        <th scope="col">Veículo ID</th>
+                        <th scope="col">Cliente</th>        {{-- CAMPO ENRIQUECIDO --}}
+                        <th scope="col">Veículo</th>        {{-- CAMPO ENRIQUECIDO --}}
                         <th scope="col">Data Emissão</th>
                         <th scope="col">Status</th>
                         <th scope="col" style="width: 150px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($ordens as $ordem)
+                    @forelse ($ordens as $ordem)
                         <tr>
                             <td>{{ $ordem['id'] }}</td>
-                            <td>{{ $ordem['cliente_id'] }}</td>
-                            <td>{{ $ordem['veiculo_id'] }}</td>
+                            
+                            {{-- EXIBINDO NOME DO CLIENTE ENRIQUECIDO PELO CONTROLLER --}}
+                            <td><strong>{{ $ordem['nome_cliente'] ?? 'N/A' }}</strong></td> 
+                            
+                            {{-- EXIBINDO DESCRIÇÃO DO VEÍCULO ENRIQUECIDA PELO CONTROLLER --}}
+                            <td>{{ $ordem['desc_veiculo'] ?? 'N/A' }}</td>
+                            
                             <td>
                                 {{-- formata a data padrão Brasil --}}
-                                {{ \Carbon\Carbon::parse($ordem['data_emissao'])->format('d/m/Y H:i') }}
+                                {{ $ordem['data_emissao'] }}
                             </td>
                             <td>
-                                {{-- Mostra um badge colorido para o status --}}
                                 @if($ordem['status'] == 'ABERTA')
                                     <span class="badge bg-primary">Aberta</span>
                                 @elseif($ordem['status'] == 'CONCLUIDA')
@@ -60,8 +76,11 @@
                                 </form>
                             </td>
                         </tr>
-                        
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhuma Ordem de Serviço encontrada.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

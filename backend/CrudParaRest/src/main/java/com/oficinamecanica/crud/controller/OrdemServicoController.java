@@ -18,7 +18,7 @@ import com.oficinamecanica.crud.client.OrdemServicoClient;
 import com.oficinamecanica.crud.model.OrdemServico;
 
 @RestController
-@RequestMapping("/ordens-proxy") 
+@RequestMapping("/ordens-proxy")
 @CrossOrigin(origins = "*")
 public class OrdemServicoController {
 
@@ -34,7 +34,7 @@ public class OrdemServicoController {
         return osClient.listar(); 
     }
 
-     //Chamado pelo: edit() do Laravel
+     //Chamado pelo edit() do Laravel
     @GetMapping("/{id}")
     public ResponseEntity<OrdemServico> buscarPorId(@PathVariable Long id) {
         OrdemServico os = osClient.buscaPorId(id);
@@ -45,7 +45,7 @@ public class OrdemServicoController {
     }
 
     
-    //Chamado pelo: store() do Laravel (enviando o JSON)
+    //Chamado pelo store() do Laravel (enviando o JSON)
      
     @PostMapping
     public ResponseEntity<Void> inserir(@RequestBody OrdemServico os) {
@@ -54,7 +54,7 @@ public class OrdemServicoController {
     }
 
     
-    //Chamado pelo: update() do Laravel
+    //Chamado pelo update() do Laravel
     
     @PutMapping("/{id}") 
     public ResponseEntity<Void> atualizar(@PathVariable Long id, @RequestBody OrdemServico os) {
@@ -62,7 +62,7 @@ public class OrdemServicoController {
         return ResponseEntity.ok().build();
     }
 
-     //Chamado pelo: destroy() do Laravel
+     //Chamado pelo destroy() do Laravel
      
     @DeleteMapping("/{id}") 
     public ResponseEntity<Void> excluir(@PathVariable Long id) {

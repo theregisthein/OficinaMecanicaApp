@@ -19,8 +19,8 @@
                         <select id="cliente_id" name="cliente_id" class="form-control" required>
                             <option value="">Selecione um cliente...</option>
                             @foreach ($clientes as $cliente)
-                                {{-- para marcar o cliente salvo --}}
-                                <option value="{{ $cliente['id'] }}" @if($cliente['id'] == $ordem['cliente_id']) selected @endif>
+                                {{-- Lógica híbrida: verifica se o ID está dentro do objeto 'cliente' ou solto --}}
+                                <option value="{{ $cliente['id'] }}" @if($cliente['id'] == ($ordem['cliente']['id'] ?? $ordem['cliente_id'] ?? '')) selected @endif>
                                     {{ $cliente['nome'] }}
                                 </option>
                             @endforeach
@@ -32,8 +32,8 @@
                         <select id="veiculo_id" name="veiculo_id" class="form-control" required>
                             <option value="">Selecione um veículo...</option>
                             @foreach ($veiculos as $veiculo)
-                                {{-- para marcar o veículo salvo --}}
-                                <option value="{{ $veiculo['id'] }}" @if($veiculo['id'] == $ordem['veiculo_id']) selected @endif>
+                                {{-- Lógica híbrida para veículo também --}}
+                                <option value="{{ $veiculo['id'] }}" @if($veiculo['id'] == ($ordem['veiculo']['id'] ?? $ordem['veiculo_id'] ?? '')) selected @endif>
                                     {{ $veiculo['marca'] }} {{ $veiculo['modelo'] }} (Placa: {{ $veiculo['placa'] }})
                                 </option>
                             @endforeach
@@ -45,7 +45,6 @@
                     <div class="col-md-6 mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select id="status" name="status" class="form-control" required>
-                            {{-- para marcar o status salvo --}}
                             <option value="ABERTA" @if($ordem['status'] == 'ABERTA') selected @endif>Aberta</option>
                             <option value="EM_ANDAMENTO" @if($ordem['status'] == 'EM_ANDAMENTO') selected @endif>Em Andamento</option>
                             <option value="CONCLUIDA" @if($ordem['status'] == 'CONCLUIDA') selected @endif>Concluída</option>
@@ -53,11 +52,11 @@
                         </select>
                     </div>
                     
-                    {{-- campo oculto para manter a data de emissao original --}}
+                    {{-- Mantém a data original enviada pelo Java --}}
                     <input type="hidden" name="data_emissao" value="{{ $ordem['data_emissao'] }}">
                 </div>
 
-                {{-- Oode JavaScript injeta os inputs ocultos --}}
+                {{-- O JavaScript vai injetar aqui os inputs ocultos dos itens --}}
                 <div id="itens-hidden-inputs"></div>
             </form>
 
@@ -70,7 +69,6 @@
                         <label for="select_item_id">Item</label>
                         <select id="select_item_id" class="form-control">
                             <option value="">Selecione um item...</option>
-                            {{-- $itens_catalogo vem do controller --}}
                             @foreach ($itens_catalogo as $item)
                                 <option value="{{ $item['id'] }}" data-price="{{ $item['preco'] }}">
                                     {{ $item['nome'] }} (R$ {{ number_format($item['preco'], 2, ',', '.') }})
@@ -91,8 +89,6 @@
                     </div>
                 </div>
             </div>
-
-
 
             <table class="table table-striped mt-3">
                 <thead>
@@ -117,16 +113,33 @@
 </div>
 @endsection
 
-
 @push('scripts')
 <script>
-    // guarda os dados que o PHP passou
+    // Catálogo para buscar nomes
     const catalogoItens = @json($itens_catalogo);
     
-    // pre-carrega o "carrinho" com os itens existentes da OS
-    let itensDaOS = @json($ordem['itens'] ?? []);
+    // --- CORREÇÃO FUNDAMENTAL: NORMALIZAÇÃO DE DADOS ---
+    // Pega os dados crus que vieram do PHP (formato Java aninhado ou vazio)
+    let itensRaw = @json($ordem['itens'] ?? []);
 
-    // pega os elementos do HTML
+    // Transforma tudo para um formato padrão plano que o nosso script entende
+    let itensDaOS = itensRaw.map(osItem => {
+        return {
+            id: osItem.id, // ID do relacionamento (importante para o Java saber qual atualizar)
+            
+            // Tenta pegar o ID do item dentro do objeto 'item' (padrão Java novo) 
+            // ou direto em 'item_id' (padrão antigo/banco)
+            item_id: osItem.item ? osItem.item.id : osItem.item_id,
+            
+            // Tenta pegar o nome. Se vier null, a gente busca no catálogo depois.
+            item_nome: osItem.item ? osItem.item.nome : null,
+            
+            quantidade: osItem.quantidade,
+            valor_unitario: osItem.valor_unitario
+        };
+    });
+
+    // Elementos do DOM
     const selectItem = document.getElementById('select_item_id');
     const inputValor = document.getElementById('select_item_valor');
     const inputQtd = document.getElementById('select_item_qtd');
@@ -136,7 +149,7 @@
     const btnSalvarOS = document.getElementById('btn-salvar-os');
     const divHiddenInputs = document.getElementById('itens-hidden-inputs');
 
-    // quando o usuário escolhe um item no select
+    // Atualiza preço ao selecionar item
     selectItem.addEventListener('change', () => {
         const selectedOption = selectItem.options[selectItem.selectedIndex];
         const preco = selectedOption.getAttribute('data-price');
@@ -147,21 +160,24 @@
         }
     });
 
+    // Botão Adicionar Item
     btnAddItem.addEventListener('click', () => {
         const itemId = selectItem.value;
         const qtd = parseInt(inputQtd.value);
         const valor = parseFloat(inputValor.value);
         
-        if (!itemId || qtd <= 0 || valor < 0) { // permitido valor 0 por garantia
+        if (!itemId || qtd <= 0 || valor < 0) {
             alert('Por favor, selecione um item e verifique a quantidade e o valor.');
             return;
         }
 
-        // pega o nome do item pra mostrar na tabela
+        // Busca o nome para exibir na tabela
         const itemDoCatalogo = catalogoItens.find(i => i.id == itemId);
         const itemNome = itemDoCatalogo ? itemDoCatalogo.nome : 'Item Desconhecido';
         
+        // Adiciona ao array local
         itensDaOS.push({
+            id: null, // Novo item não tem ID de vínculo ainda
             item_id: itemId,
             item_nome: itemNome, 
             quantidade: qtd,
@@ -170,6 +186,7 @@
         
         renderizarTabela();
         
+        // Limpa campos
         selectItem.value = "";
         inputValor.value = "";
         inputQtd.value = 1;
@@ -179,10 +196,10 @@
         tabelaItens.innerHTML = "";
         
         itensDaOS.forEach((item, index) => {
-            // Ss o item_nome nao veio (porque estava carregado do $ordem), busca no catálogo
+            // Se o item veio do banco sem o nome preenchido, busca no catálogo agora
             if (!item.item_nome) {
                 const itemDoCatalogo = catalogoItens.find(i => i.id == item.item_id);
-                item.item_nome = itemDoCatalogo ? itemDoCatalogo.nome : 'Item Carregado';
+                item.item_nome = itemDoCatalogo ? itemDoCatalogo.nome : 'Item (ID: ' + item.item_id + ')';
             }
             
             const totalItem = (item.quantidade || 0) * (item.valor_unitario || 0);
@@ -211,19 +228,26 @@
         renderizarTabela();
     }
 
-    // preencher o formulário pro PHP
+    // Gera os inputs hidden que serão enviados via POST/PUT
     function atualizarInputsOcultos() {
         divHiddenInputs.innerHTML = "";
         
         itensDaOS.forEach((item, index) => {
+            // Se for item existente (edição), envia o ID do vínculo
+            let inputIdVinculo = '';
+            if (item.id) {
+                inputIdVinculo = `<input type="hidden" name="itens[${index}][id]" value="${item.id}">`;
+            }
+
+            // Garante que item_id está preenchido
             divHiddenInputs.innerHTML += `
+                ${inputIdVinculo}
                 <input type="hidden" name="itens[${index}][item_id]" value="${item.item_id}">
                 <input type="hidden" name="itens[${index}][quantidade]" value="${item.quantidade}">
                 <input type="hidden" name="itens[${index}][valor_unitario]" value="${item.valor_unitario}">
             `;
         });
     }
-
 
     btnSalvarOS.addEventListener('click', () => {
         if (!document.getElementById('cliente_id').value || !document.getElementById('veiculo_id').value) {
@@ -238,8 +262,7 @@
         formOS.submit();
     });
 
-
-    // Assim que a página carregar, desenha a tabela com os itens que vieram do banco
+    // Inicia a tabela ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
         renderizarTabela();
     });

@@ -8,8 +8,10 @@ use Illuminate\Support\Facades\Http;
 
 class VeiculoController extends Controller
 {
-
+    //PARA LOCAL
     private $apiBaseUrl = 'http://localhost:8080/veiculos-proxy';
+    
+    //private $apiBaseUrl = 'http://proxycrud:8080/veiculos-proxy';
  
     public function index()
     {
@@ -80,7 +82,7 @@ class VeiculoController extends Controller
         $response = Http::delete("{$this->apiBaseUrl}/{$id}");
 
         if ($response->failed()) {
-            return redirect()->back()->with('error', 'Falha ao excluir o veiculo na API.');
+            return redirect()->back()->with('error', 'Falha ao excluir. Veiculo pode estar em uso.');
         }
 
         return redirect()->route('veiculos.index')->with('success', 'Veiculo excluído com sucesso!');

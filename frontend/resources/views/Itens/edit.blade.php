@@ -17,11 +17,11 @@
                     <div class="col-md-6 mb-3">
                         <label for="nome" class="form-label">Nome do Item</label>
                         {{-- VALUE: Preenche o campo com o dado que veio do crud --}}
-                        <input type="text" 
-                               class="form-control" 
-                               id="nome" 
-                               name="nome" 
-                               value="{{ $item['nome'] }}" 
+                        <input type="text"
+                               class="form-control"
+                               id="nome"
+                               name="nome"
+                               value="{{ $item['nome'] }}"
                                required>
                     </div>
 

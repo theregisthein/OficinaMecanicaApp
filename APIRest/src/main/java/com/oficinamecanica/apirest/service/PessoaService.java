@@ -10,5 +10,4 @@ public interface PessoaService extends JpaRepository<Pessoa, Long> {
 
     // metodo  do JPA para login
     Optional<Pessoa> findByEmailAndSenha(String email, String senha);
-
 }

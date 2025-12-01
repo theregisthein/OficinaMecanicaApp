@@ -1,33 +1,33 @@
 package com.oficinamecanica.crud.model;
 
-// Este é o DTO (Molde) do Proxy 8080 (sem @Entity)
-// Ele espelha o JSON que a API 9090 envia
 
 public class OS_Item {
-    private Long id; 
-    private Long item_id;
-    private float quantidade;
-    private Double valor_unitario;
-    private Double valor_total; 
-
-    public Long getId() { 
-        return id; 
-    }
-    public void setId(Long id) { 
-        this.id = id; 
-    }
     
-    public Long getItem_id() {
-        return item_id;
+    private Long id;
+    private Item item;
+    private Double quantidade;
+    private Double valor_unitario;
+    private Double valor_total;
+
+    public Long getId() {
+        return id;
     }
-    public void setItem_id(Long item_id) {
-        this.item_id = item_id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public float getQuantidade() {
+    
+    public Item getItem() {
+        return item;
+    }
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Double getQuantidade() {
         return quantidade;
     }
-    public void setQuantidade(float quantidade) {
+    public void setQuantidade(Double quantidade) {
         this.quantidade = quantidade;
     }
 

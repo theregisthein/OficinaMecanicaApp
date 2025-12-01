@@ -4,20 +4,50 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+Use Illuminate\Support\Facades\Log;
 
 class PessoaController extends Controller
 {
+    //PARA LOCAL
     private $apiBaseUrl = 'http://localhost:8080/pessoas-proxy';
+    
+    //private $apiBaseUrl = 'http://proxycrud:8080/pessoas-proxy';
 
     public function index()
     {
+        $pessoas = [];
+        $errorMessage = null;
+
         try {
             $response = Http::get($this->apiBaseUrl);
-            $pessoas = $response->json(); 
+
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                
+                if (is_array($data)) {
+                    $pessoas = $data;
+                } else {
+                    Log::error('API Pessoa retornou 200, mas o JSON é inválido ou nulo.');
+                    $errorMessage = 'Dados inválidos recebidos do backend.';
+                }
+
+            } else {
+                $status = $response->status();
+                $body = $response->body();
+                Log::error("API Pessoa falhou. Status: {$status}. Body: {$body}");
+                $errorMessage = "Falha ao carregar pessoas (Status: {$status}).";
+            }
+
         } catch (\Exception $e) {
-            $pessoas = [];
+            Log::error('Erro de conexão com API Pessoa: ' . $e->getMessage());
+            $errorMessage = 'Serviço de Pessoas indisponível. Verifique o Docker/Proxy.';
         }
         
+        if ($errorMessage) {
+            return view("pessoas.index", ['pessoas' => $pessoas])->with('error', $errorMessage);
+        }
+
         return view("pessoas.index", ['pessoas' => $pessoas]);
     }
 
@@ -28,7 +58,7 @@ class PessoaController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->only(['nome', 'telefone', 'endereco', 'cpfcnpj', 'tipo']);
+        $data = $request->only(['nome', 'telefone', 'endereco', 'cpfcnpj', 'tipo', 'perfil', 'email', 'senha']);
         $response = Http::post($this->apiBaseUrl, $data);
 
         if ($response->failed()) {
@@ -58,7 +88,7 @@ class PessoaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $data = $request->only(['nome', 'telefone', 'endereco', 'cpfcnpj', 'tipo']); 
+        $data = $request->only(['nome', 'telefone', 'endereco', 'cpfcnpj', 'tipo', 'perfil', 'email', 'senha']); 
         $response = Http::put("{$this->apiBaseUrl}/{$id}", $data);
 
         if ($response->failed()) {
@@ -73,7 +103,7 @@ class PessoaController extends Controller
         $response = Http::delete("{$this->apiBaseUrl}/{$id}");
 
         if ($response->failed()) {
-            $errorMessage = $response->json()['message'] ?? 'Falha ao excluir a pessoa na API.';
+            $errorMessage = $response->json()['message'] ?? 'Falha ao excluir. Pessoa pode estar em uso.';
             return redirect()->back()->with('error', $errorMessage);
         }
 

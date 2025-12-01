@@ -4,32 +4,36 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-@Entity //indica que esta classe e uma tabela do banco de dados
+@Entity
+@Table(name = "item")
 public class Item {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
+
     private String nome;
     private String marca;
-    private float preco;
+    private Double preco;
 
 
-    public Item(){};
+    public Item() {
+    }
 
 
-    public Item(Long id, String nome, String marca, float preco) {
+    public Item(Long id, String nome, String marca, Double preco) {
         this.id = id;
         this.nome = nome;
         this.marca = marca;
         this.preco = preco;
-        
     }
 
+    
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -37,7 +41,7 @@ public class Item {
     }
 
     public String getNome() {
-        return this.nome;
+        return nome;
     }
 
     public void setNome(String nome) {
@@ -45,18 +49,18 @@ public class Item {
     }
 
     public String getMarca() {
-        return this.marca;
+        return marca;
     }
 
     public void setMarca(String marca) {
         this.marca = marca;
     }
-    
-    public float getPreco() {
-        return this.preco;
+
+    public Double getPreco() {
+        return preco;
     }
 
-    public void setPreco(float preco) {
+    public void setPreco(Double preco) {
         this.preco = preco;
     }
 }

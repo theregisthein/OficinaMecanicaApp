@@ -30,7 +30,7 @@ public class PessoaController {
 
     @GetMapping
     public List<Pessoa> listarTodos() {
-        return pessoaClient.listar(); 
+        return pessoaClient.listar();
     }
 
     @GetMapping("/{id}")

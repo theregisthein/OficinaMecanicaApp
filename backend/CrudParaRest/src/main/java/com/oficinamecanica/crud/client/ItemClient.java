@@ -15,7 +15,10 @@ import com.oficinamecanica.crud.model.Item;
 @Component
 public class ItemClient {
 
+    //PARA LOCAL
   private static final String uri = "http://localhost:9090/item";
+    //PARA DOCKER
+  //private static final String uri = "http://apirest:9090/item";
   private final RestTemplate restTemplate;
 
   public ItemClient() {
@@ -29,25 +32,22 @@ public class ItemClient {
     List<Item> lista = new ArrayList<>();
     
     try {
-         URI uri = new URI("http://localhost:9090/item");
-         Item[] i = restTemplate.getForObject(uri, Item[].class);
-         lista = Arrays.asList(i);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-    }
-    return lista;
-  }
+           URI uri = new URI("http://localhost:9090/item");
+           Item[] i = restTemplate.getForObject(uri, Item[].class);
+           lista = Arrays.asList(i);
+      } catch (URISyntaxException e) {
+        e.printStackTrace();
+      }
+      return lista;
+}
 
   
 
     public void inserir(Item it) {
     try {
-        System.out.println("--- DEBUG CLIENT INSERT: Enviando POST para: " + uri);
         restTemplate.postForObject(uri, it, Item.class);
-        System.out.println("--- DEBUG CLIENT INSERT: Sucesso.");
         
     } catch (Exception e) {
-        System.out.println("--- ERRO NO CLIENT INSERT: " + e.getMessage());
         e.printStackTrace();
         // ISSO FAZ O ERRO APARECER NO LARAVEL
         throw new RuntimeException("Erro ao INSERIR no client 9090: " + e.getMessage()); 
@@ -83,7 +83,6 @@ public class ItemClient {
         } catch (Exception e) {
             e.printStackTrace();
             
-            // ISSO JOGA O ERRO DE VOLTA PARA O LARAVEL VER
             throw new RuntimeException("Erro ao EXCLUIR no client 9090: " + e.getMessage()); 
         }
     }

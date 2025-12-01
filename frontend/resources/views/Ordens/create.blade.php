@@ -9,11 +9,9 @@
         </div>
         <div class="card-body">
 
-            {{-- O FORMULÁRIO PRINCIPAL (MÃE) --}}
             <form action="{{ route('ordens.store') }}" method="POST" id="form-os">
                 @csrf 
                 
-                {{-- 1. CABEÇALHO DA OS --}}
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="cliente_id" class="form-label">Cliente</label>
@@ -54,7 +52,6 @@
 
             <hr>
 
-            {{-- FORMULÁRIO PARA ADICIONAR ITENS (FILHOS) --}}
             <h4 class="mt-4">Itens da OS</h4>
             <div class="card bg-light p-3">
                 <div class="row">

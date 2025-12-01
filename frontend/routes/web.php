@@ -29,7 +29,7 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth.custom'])->group(function () {
     
     // Rota do Dashboard menu principal
-Route::get('/dashboard', [LoginController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [LoginController::class, 'dashboard'])->name('dashboard');
 
     // Rota da OS
     Route::resource('ordens', OrdemservicoController::class);

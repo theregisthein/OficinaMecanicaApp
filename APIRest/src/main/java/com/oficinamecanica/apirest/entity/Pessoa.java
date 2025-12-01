@@ -4,8 +4,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "pessoa")
 public class Pessoa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,8 +17,8 @@ public class Pessoa {
     private String telefone;
     private String endereco;
     private String cpfcnpj;
-    private String tipo; //fisoca ou juridica
-    private String perfil; //funcionario ou cliente
+    private String tipo;
+    private String perfil;
     private String email; 
     private String senha;
 
@@ -85,25 +87,25 @@ public class Pessoa {
         this.tipo = tipo;
     }
 
-    public String getPerfil() { 
-        return perfil; 
+    public String getPerfil() {
+        return perfil;
     }
-    public void setPerfil(String perfil) { 
-        this.perfil = perfil; 
-    }
-
-    public String getEmail() { 
-        return email; 
-    }
-    public void setEmail(String email) { 
-        this.email = email; 
+    public void setPerfil(String perfil) {
+        this.perfil = perfil;
     }
 
-    public String getSenha() { 
-        return senha; 
+    public String getEmail() {
+        return email;
     }
-    public void setSenha(String senha) { 
-        this.senha = senha; 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
 }

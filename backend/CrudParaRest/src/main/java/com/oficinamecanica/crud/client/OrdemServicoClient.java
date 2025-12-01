@@ -13,7 +13,10 @@ import com.oficinamecanica.crud.model.OrdemServico;
 @Component
 public class OrdemServicoClient {
 
+    //PARA LOCAL
     private static final String uri = "http://localhost:9090/ordemServico";
+    //PARA DOCKER
+    //private static final String uri = "http://apirest:9090/ordemServico";
     private final RestTemplate restTemplate;
 
     public OrdemServicoClient() {

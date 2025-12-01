@@ -1,25 +1,26 @@
+// Arquivo: frontend/database/seeders/DatabaseSeeder.php
+
 <?php
 
-namespace Database\Seeders;
-
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Pessoa;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Insere o usuário ADMIN com o hash BCrypt
+        Pessoa::create([
+            'nome' => 'Administrador',
+            'email' => 'admin@oficina.com',
+            'senha' => '123456',
+            'perfil' => 'ADMIN',
+            'endereco' => 'Rua Admin 123',
+            'cpfcnpj' => '00000000000',
+            'telefone' => '999999999',
+            'tipo' => 'fisica',
         ]);
+
     }
 }

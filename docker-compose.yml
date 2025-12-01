@@ -1,0 +1,82 @@
+
+
+services:
+  # 1. SERVIÇO DO BANCO DE DADOS (MySQL)
+  database:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password # Mude a senha
+      MYSQL_DATABASE: oficina            # Nome do seu banco
+      MYSQL_USER: user_oficina           # Nome do seu usuário
+      MYSQL_PASSWORD: user_password      # Senha do usuário
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+  # 2. SERVIÇO DA API FINAL (9090)
+  apirest:
+    build:
+      context: ./APIRest
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: "target/demo-0.0.1-SNAPSHOT.jar" # VERIFIQUE O NOME CORRETO DO SEU ARQUIVO JAR
+    container_name: java_api_9090
+    ports:
+      - "9090:9090"
+    environment:
+      # Garante que a API use o nome do serviço 'database' no lugar de 'localhost'
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/oficina
+      SPRING_DATASOURCE_USERNAME: user_oficina
+      SPRING_DATASOURCE_PASSWORD: user_password
+    depends_on:
+      - database
+
+  # 3. SERVIÇO DO PROXY (8080)
+  proxycrud:
+    build:
+      context: ./backend/CrudParaRest
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: "target/crud-1.0-SNAPSHOT.jar" # VERIFIQUE O NOME CORRETO DO SEU ARQUIVO JAR
+    container_name: java_proxy_8080
+    ports:
+      - "8080:8080"
+    environment:
+      # Garante que o Proxy use o nome do serviço 'api_rest' no lugar de 'localhost' para chamar a API 9090
+      API_BASE_URL: http://apirest:9090
+    depends_on:
+      - apirest # Depende que a API 9090 esteja no ar
+
+  # 4. SERVIÇO DO FRONTEND (Laravel/PHP)
+  frontend_app:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: laravel_frontend
+    ports:
+      - "8000:80" # Mapeia a porta 80 do container para a 8000 da sua máquina
+    environment:
+      # Configurações de Comunicação
+      APP_URL: http://localhost:8000
+      JAVA_PROXY_URL: http://proxycrud:8080
+      
+      # 🚨 VARIÁVEIS DE CONEXÃO COM O BANCO (A CORREÇÃO ESTÁ AQUI) 🚨
+      DB_CONNECTION: mysql
+      DB_HOST: database  # <- ESSENCIAL: Usa o nome do serviço MySQL
+      DB_PORT: 3306      # Usa a porta interna do contêiner MySQL
+      DB_DATABASE: oficina
+      DB_USERNAME: user_oficina
+      DB_PASSWORD: user_password
+      
+    volumes:
+      # Monta o código local para que as alterações em tempo real no Laravel funcionem
+      - ./frontend:/var/www/html
+      
+    depends_on:
+      - proxycrud # Depende que o Proxy 8080 esteja no ar
+
+volumes:
+  db-data:

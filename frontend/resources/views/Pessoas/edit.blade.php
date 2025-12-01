@@ -38,7 +38,6 @@
                         <input type="text" class="form-control" id="cpfcnpj" name="cpfcnpj" value="{{ $pessoa['cpfcnpj'] ?? '' }}" required minlength="11" maxlength="14" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                     
-                    {{-- CAMPO TIPO (Radio Button F/J com lógica 'checked') --}}
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Tipo</label>
                         <div class="form-check">

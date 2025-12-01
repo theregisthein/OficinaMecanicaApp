@@ -4,13 +4,13 @@ public class Item {
     private Long id;
     private String nome;
     private String marca;
-    private String preco;
+    private Double preco;
 
 
     public Item() {
     }
 
-    public Item(Long id, String nome, String marca, String preco) {
+    public Item(Long id, String nome, String marca, Double preco) {
         this.id = id;
         this.nome = nome;
         this.marca = marca;
@@ -42,11 +42,11 @@ public class Item {
         this.marca = marca;
     }
 
-    public String getPreco() {
+    public Double getPreco() {
         return this.preco;
     }
 
-    public void setPreco(String preco) {
+    public void setPreco(Double preco) {
         this.preco = preco;
     }
     

@@ -15,8 +15,11 @@ import com.oficinamecanica.crud.model.Pessoa;
 @Component
 public class PessoaClient {
     
-
+    //PARA LOCAL
   private static final String uri = "http://localhost:9090/pessoa";
+    //PARA DOCKER
+  //private static final String uri = "http://apirest:9090/pessoa";
+  
   private final RestTemplate restTemplate;
 
   public PessoaClient() {
@@ -87,7 +90,6 @@ public class PessoaClient {
             loginData.setEmail(email);
             loginData.setSenha(senha);
 
-            // Chama a API 9090
             return restTemplate.postForObject(uri + "/login", loginData, Pessoa.class);
         } catch (Exception e) {
             e.printStackTrace();

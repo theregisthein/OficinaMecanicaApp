@@ -15,7 +15,10 @@ import com.oficinamecanica.crud.model.Veiculo;
 @Component
 public class VeiculoClient {
 
+    //PARA LOCAL
     private static final String uri = "http://localhost:9090/veiculo";
+    //PARA DOCKER
+    //private static final String uri = "http://apirest:9090/veiculo";
     private final RestTemplate restTemplate;
 
     public VeiculoClient() {

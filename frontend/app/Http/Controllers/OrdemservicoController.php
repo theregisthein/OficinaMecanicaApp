@@ -5,26 +5,76 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Carbon; // Para lidar com datas
+use Illuminate\Support\Collection; // Necessário para a função collect()
 
 class OrdemservicoController extends Controller
 {
-    // URLs das suas APIs
+     //URLs das APIs PARA LOCAL
     private $apiOsUrl = 'http://localhost:8080/ordens-proxy';
     private $apiPessoasUrl = 'http://localhost:8080/pessoas-proxy';
     private $apiVeiculosUrl = 'http://localhost:8080/veiculos-proxy';
     private $apiItensUrl = 'http://localhost:8080/items-proxy';
 
+    //private $apiBaseHost = 'http://proxycrud:8080';
+    //private $apiOsUrl = 'http://proxycrud:8080/ordens-proxy';
+    //private $apiPessoasUrl = 'http://proxycrud:8080/pessoas-proxy';
+    //private $apiVeiculosUrl = 'http://proxycrud:8080/veiculos-proxy';
+    //private $apiItensUrl = 'http://proxycrud:8080/items-proxy';
+
 
     public function index()
     {
         try {
-            $response = Http::get($this->apiOsUrl);
-            $ordens = $response->json();
+            $responseOs = Http::get($this->apiOsUrl);
+            $ordens = $responseOs->json();
+
+            if (!is_array($ordens) || $responseOs->failed()) {
+                 return view('ordens.index', ['ordens' => []])
+                    ->with('error', 'Falha ao buscar Ordens de Serviço.');
+            }
+
+            // 2. Buscar TODOS os Clientes e Veículos (Para pegar os nomes)
+            // (Isso é necessário porque seu Java talvez não esteja mandando o nome, só o ID)
+            $clientes = Http::get($this->apiPessoasUrl)->json();
+            $veiculos = Http::get($this->apiVeiculosUrl)->json();
+            
+            // 3. Mapear para acesso rápido
+            $clientesMap = Collection::make($clientes)->keyBy('id');
+            $veiculosMap = Collection::make($veiculos)->keyBy('id');
+            
+            // 4. CORREÇÃO AQUI: Ler o ID de dentro do Objeto
+            $ordensEnriquecidas = Collection::make($ordens)->map(function ($ordem) use ($clientesMap, $veiculosMap) {
+                
+                // Tenta pegar 'cliente_id' (jeito antigo) OU 'cliente.id' (jeito novo objeto)
+                $clienteId = $ordem['cliente_id'] ?? $ordem['cliente']['id'] ?? null;
+                $veiculoId = $ordem['veiculo_id'] ?? $ordem['veiculo']['id'] ?? null;
+
+                // Enriquecimento do Cliente
+                $cliente = $clientesMap->get($clienteId);
+                $ordem['nome_cliente'] = $cliente['nome'] ?? 'Cliente não encontrado (ID: '.$clienteId.')';
+
+                // Enriquecimento do Veículo
+                $veiculo = $veiculosMap->get($veiculoId);
+                if ($veiculo) {
+                    $ordem['desc_veiculo'] = "{$veiculo['marca']} {$veiculo['modelo']} ({$veiculo['placa']})";
+                } else {
+                    $ordem['desc_veiculo'] = 'Veículo não encontrado (ID: '.$veiculoId.')';
+                }
+                
+                // Formata a data para ficar bonita na tabela
+                if (isset($ordem['data_emissao'])) {
+                    $ordem['data_emissao'] = date('d/m/Y H:i', strtotime($ordem['data_emissao']));
+                }
+
+                return $ordem;
+            })->toArray();
+
         } catch (\Exception $e) {
-            $ordens = [];
+            return view('ordens.index', ['ordens' => []])
+                ->with('error', 'Erro de conexão: ' . $e->getMessage());
         }
         
-        return view('ordens.index', ['ordens' => $ordens]);
+        return view('ordens.index', ['ordens' => $ordensEnriquecidas]);
     }
 
     public function create()
@@ -37,7 +87,7 @@ class OrdemservicoController extends Controller
 
         } catch (\Exception $e) {
             return redirect()->route('ordens.index')
-                   ->with('error', 'Não foi possível carregar os dados das APIs (Clientes, Veículos ou Itens). Verifique o Java.');
+                           ->with('error', 'Não foi possível carregar os dados das APIs (Clientes, Veículos ou Itens). Verifique o Java.');
         }
 
         return view('ordens.create', ['clientes' => $clientes, 'veiculos' => $veiculos, 'itens' => $itens]);
@@ -48,41 +98,39 @@ class OrdemservicoController extends Controller
     
     public function store(Request $request)
     {
-        // Monta o cabeçalho (a "Mãe")
+        // Monta o Objeto PAI (Ordem)
         $dadosOs = [
-            'cliente_id' => $request->cliente_id,
-            'veiculo_id' => $request->veiculo_id,
+            'cliente' => ['id' => (int)$request->cliente_id], 
+            'veiculo' => ['id' => (int)$request->veiculo_id],
             'status' => $request->status,
             'data_emissao' => Carbon::now()->toIso8601String(), 
         ];
 
-        // Monta a lista de "Filhos" (os itens)
-        // O JavaScript vai enviar os itens como arrays
+        // Monta a Lista de FILHOS (Itens)
         $itens_da_os = [];
         if ($request->has('itens')) {
             foreach ($request->itens as $item) {
-                //$item é um array vindo do form: [item_id, quantidade, valor_unitario]
                 $itens_da_os[] = [
-                    'item_id' => (int)$item['item_id'],
-                    'quantidade' => (int)$item['quantidade'],
+                    // 'item' vira um objeto com 'id' dentro
+                    'item' => ['id' => (int)$item['item_id']],
+                    'quantidade' => (float)$item['quantidade'],
                     'valor_unitario' => (float)$item['valor_unitario'],
-                    //valor_total será calculado pela API 9090
                 ];
             }
         }
         
-        //junta a mãe(Ordem) e os filhos(Itens) no JSON
+        // Junta tudo
         $dadosCompletos = $dadosOs;
         $dadosCompletos['itens'] = $itens_da_os;
 
-        //envia para o Proxy 8080
+        // Envia
         $response = Http::post($this->apiOsUrl, $dadosCompletos);
 
         if ($response->failed()) {
-            return back()->with('error', 'Falha ao salvar a OS na API: ' . $response->body());
+            return back()->with('error', 'Falha ao salvar a OS: ' . $response->body());
         }
 
-        return redirect()->route('ordens.index')->with('success', 'Ordem de Serviço criada com sucesso!');
+        return redirect()->route('ordens.index')->with('success', 'OS criada com sucesso!');
     }
 
 
@@ -99,31 +147,37 @@ class OrdemservicoController extends Controller
 
             
         } catch (\Exception $e) {
-            dd("A API FALHOU COM UMA EXCEÇÃO: " . $e->getMessage());
             return redirect()->route('ordens.index')->with('error', 'Não foi possível carregar os dados da OS ou das APIs.');
         }
 
-        return view('ordens.edit', ['ordem' => $ordem, 'clientes' => $clientes,'veiculos' => $veiculos, 'itens_catalogo' => $itens
+        return view('ordens.edit', [
+            'ordem' => $ordem,
+            'clientes' => $clientes,
+            'veiculos' => $veiculos,
+            'itens_catalogo' => $itens
         ]);
     }
 
 
     public function update(Request $request, $id)
     {
-        // mesma coisa de Store mas usa Http::put
-        
         $dadosOs = [
-            'cliente_id' => $request->cliente_id,
-            'veiculo_id' => $request->veiculo_id,
+            'id' => (int)$id,
+            'cliente' => ['id' => (int)$request->cliente_id],
+            'veiculo' => ['id' => (int)$request->veiculo_id],
             'status' => $request->status,
-            'data_emissao' => $request->data_emissao, // Mantém a data original
+            // Mantém data original se vier, senão usa agora
+            'data_emissao' => $request->data_emissao ?? Carbon::now()->toIso8601String(),
         ];
 
         $itens_da_os = [];
         if ($request->has('itens')) {
             foreach ($request->itens as $item) {
+                $osItemId = isset($item['id']) ? (int)$item['id'] : null;
+
                 $itens_da_os[] = [
-                    'item_id' => (int)$item['item_id'],
+                    'id' => $osItemId,
+                    'item' => ['id' => (int)$item['item_id']],
                     'quantidade' => (int)$item['quantidade'],
                     'valor_unitario' => (float)$item['valor_unitario'],
                 ];
@@ -133,11 +187,10 @@ class OrdemservicoController extends Controller
         $dadosCompletos = $dadosOs;
         $dadosCompletos['itens'] = $itens_da_os;
 
-        // USA PUT E A URL COM ID
         $response = Http::put("{$this->apiOsUrl}/{$id}", $dadosCompletos);
 
         if ($response->failed()) {
-            return back()->with('error', 'Falha ao atualizar a OS na API: ' . $response->body());
+            return back()->with('error', 'Falha ao atualizar a OS: ' . $response->body());
         }
 
         return redirect()->route('ordens.index')->with('success', 'Ordem de Serviço atualizada com sucesso!');

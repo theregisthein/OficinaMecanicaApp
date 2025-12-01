@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping; // Importe tudo
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +18,9 @@ import com.oficinamecanica.apirest.entity.Pessoa;
 import com.oficinamecanica.apirest.service.PessoaService;
 
 @RestController
-@RequestMapping("/pessoa") //  BASE DE ROTA AQUI
+@RequestMapping("/pessoa")
 public class PessoaController {
+    
     
     @Autowired
     PessoaService servPessoa;
@@ -57,24 +58,24 @@ public class PessoaController {
     @PostMapping("/login") // rota filha
     public ResponseEntity<Pessoa> login(@RequestBody Pessoa loginData) {
         
-        // padroniza o email para minúuculas e remove espacos.
         String emailBusca = loginData.getEmail().toLowerCase().trim();
         String senhaBusca = loginData.getSenha().trim();
         
-        // busca no banco por email e senha
-        Optional<Pessoa> pessoa = servPessoa.findByEmailAndSenha(emailBusca, senhaBusca);
+        // BUSCA JPA DIRETA: Busca no banco por email E senha em texto simples
+        Optional<Pessoa> pessoaOpt = servPessoa.findByEmailAndSenha(emailBusca, senhaBusca); 
         
-        // vrifica se a pessoa foi encontrada
-        if (pessoa.isPresent()) {
-            // se encontrou verifica se o perfil permite login
-            if (pessoa.get().getPerfil().equals("FUNCIONARIO") || pessoa.get().getPerfil().equals("ADMIN")) {
-                return ResponseEntity.ok(pessoa.get()); 
-            } else {
-                return ResponseEntity.status(403).build(); 
-            }
+        // Verifica se o usuário foi encontrado com a combinação exata
+        if (pessoaOpt.isPresent()) {
+            Pessoa pessoa = pessoaOpt.get();
+            
+            // Verifica o perfil e retorna sucesso
+            //if (pessoa.getPerfil().equals("FUNCIONARIO") || pessoa.getPerfil().equals("ADMIN")) {
+                return ResponseEntity.ok(pessoa); 
+            //} else {
+                //return ResponseEntity.status(403).build(); 
+            //}
         } else {
-            // Se nao (credenciais invalidas)
-            return ResponseEntity.status(401).build(); // 401 - Não Autorizado
+            return ResponseEntity.status(401).build();
         }
     }
 }

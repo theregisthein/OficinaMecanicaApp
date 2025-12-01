@@ -50,8 +50,9 @@ public class OrdemServicoController {
 
     @PutMapping("/ordemServico")
     public OrdemServico update(@RequestBody OrdemServico ordServ){
-        
+        System.out.println("Cliente recebido: " + ordServ.getCliente());
         if (ordServ.getItens() != null) {
+            System.out.println("ID Cliente: " + ordServ.getCliente().getId());
             for (OS_Item item : ordServ.getItens()) {
                 // marca cada filho com a referência da mãe
                 item.setOrdemServico(ordServ);
@@ -60,9 +61,6 @@ public class OrdemServicoController {
             }
         }
 
-        // O .save() do JPA é inteligente:
-        // Se o 'ordServ' tem ID, ele ATUALIZA (Update)
-        // Se não tem ID, ele CRIA (Insert)
         servOrdemServico.save(ordServ);
         
         return ordServ;
