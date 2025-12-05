@@ -7,6 +7,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\Ordemservicocontroller;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RelatorioController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -17,6 +18,8 @@ Route::resource('veiculos', VeiculoController::class);
 Route::patch('veiculos/{id}/toggle-status', [VeiculoController::class, 'toggleStatus'])->name('veiculos.toggleStatus');
 Route::resource('pessoas', PessoaController::class);
 Route::resource('ordens', OrdemservicoController::class);
+Route::get('/relatorio-ia', [RelatorioController::class, 'index'])->name('relatorio.index');
+Route::post('/relatorio-ia/gerar', [RelatorioController::class, 'gerar'])->name('relatorio.gerar');
 
 
 // ROTAS DE AUTENTICAÇÃO Não Protegidas
