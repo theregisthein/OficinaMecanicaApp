@@ -30,7 +30,6 @@ public class OrdemServicoController {
                 // marca cada filho com a referência da mãe
                 item.setOrdemServico(ordServ);
                 
-                // calcula valor total
                 item.setValor_total(item.getQuantidade() * item.getValor_unitario());
             }
         }

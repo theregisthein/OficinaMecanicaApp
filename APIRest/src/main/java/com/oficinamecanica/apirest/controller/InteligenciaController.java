@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.oficinamecanica.apirest.service.DataAggregationService;
-import com.oficinamecanica.apirest.service.OpenAiService;
+import com.oficinamecanica.apirest.service.GeminiService;
 
 @RestController
 @RequestMapping("/ia")
@@ -18,7 +18,7 @@ public class InteligenciaController {
     private DataAggregationService dataService;
 
     @Autowired
-    private OpenAiService openAiService;
+    private GeminiService geminiService;
 
     @PostMapping("/gerar-relatorio")
     public String gerarRelatorio() {
@@ -27,17 +27,20 @@ public class InteligenciaController {
             String jsonDados = dataService.gerarJsonCompleto();
 
             // 2. Cria o Prompt Fixo
-            String prompt = "Aja como um gerente de oficina mecânica experiente. "
-                    + "Analise os dados JSON abaixo (que contêm clientes, veículos e ordens de serviço). "
-                    + "Gere um relatório resumido citando: "
-                    + "1. Faturamento total (soma dos itens das OS). "
-                    + "2. Quais clientes gastaram mais. "
-                    + "3. Veículos com mais manutenções. "
-                    + "Seja direto e use formatação simples. Dados: " 
-                    + jsonDados;
+            String prompt = "Aja como um gerente de oficina mecânica experiente.\n"
+                + "Analise os dados JSON abaixo (que contêm clientes, veículos e ordens de serviço).\n\n"
+                + "Gere um relatório resumido citando:\n"
+                + "1. Faturamento total (soma dos itens das OS).\n"
+                + "2. Quais clientes gastaram mais.\n"
+                + "3. Veículos com mais manutenções.\n\n"
+                + "Seja direto, use formatação HTML simples (negrito, listas) para eu exibir no site.\n"
+                + "Dados:\n"
+                + "```json\n"
+                + jsonDados
+                + "\n```";
 
             // 3. Manda para a IA e retorna a resposta
-            return openAiService.enviarPrompt(prompt);
+            return geminiService.enviarPrompt(prompt);
 
         } catch (Exception e) {
             e.printStackTrace();
