@@ -18,6 +18,50 @@ O fluxo de dados segue a seguinte ordem:
 
 ---
 
+## 📸 Demonstração Visual
+
+Abaixo, o fluxo principal de utilização do sistema:
+
+### 1. Acesso ao Sistema
+Tela de autenticação segura para funcionários.
+![Tela de Login](./screenshots/login.png)
+
+### 2. Visão Geral
+Dashboard inicial com acesso rápido aos módulos.
+![Dashboard Principal](./screenshots/dashboard.png)
+
+### 3. Frota de Veículos
+Gerenciamento e listagem dos veículos dos clientes.
+![Gestão de Veículos](./screenshots/cadastro_veiculos.png)
+
+### 4. Catálogo de Itens
+Controle de peças (ex: Óleo, Pneus) e serviços (ex: Mão de obra).
+![Lista de Itens](./screenshots/cadastro_lista_itens.png)
+
+### 5. Gestão de Pessoas
+Cadastro e listagem de clientes e administradores do sistema.
+
+**Cadastro de Novo Cliente:**
+![Cadastro de Pessoa](./screenshots/cadastro_pessoa.png)
+
+**Listagem de Clientes:**
+![Lista de Pessoas](./screenshots/lista_pessoas.png)
+
+### 6. Ordens de Serviço (OS)
+O coração do sistema: criação e gerenciamento das manutenções.
+
+**Listagem de OS:**
+![Lista de Ordens de Serviço](./screenshots/lista_os.png)
+
+**Detalhes e Edição da OS:**
+![Edição de Ordem de Serviço](./screenshots/edicao_os.png)
+
+### 7. Módulo de Inteligência Artificial
+Relatórios gerados pelo Google Gemini com análise financeira e estratégica.
+![Relatório IA](./screenshots/relatorio_ia.png)
+
+---
+
 ## 🛠️ Tecnologias Utilizadas
 
 * **Frontend:**

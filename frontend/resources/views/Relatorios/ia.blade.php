@@ -52,11 +52,9 @@
 {{-- 4. SCRIPT PARA CONTROLAR A TELA --}}
 <script>
     document.getElementById('formIA').addEventListener('submit', function() {
-        // Pega os elementos
         var btn = document.getElementById('btnGerar');
         var loading = document.getElementById('loadingArea');
 
-        // Esconde o botão para evitar clique duplo e mostra o loading
         btn.classList.add('d-none');
         loading.classList.remove('d-none');
     });
